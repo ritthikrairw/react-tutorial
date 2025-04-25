@@ -16,35 +16,3 @@ export type Meta = {
   total: number
   totalPages: number
 }
-
-export type User = Entity<{
-  firstName: string
-  lastName: string
-  email: string
-  role: 'ADMIN' | 'USER'
-  teamId: string
-  bio: string
-}>
-
-export type AuthResponse = {
-  jwt: string
-  user: User
-}
-
-export type Team = Entity<{
-  name: string
-  description: string
-}>
-
-export type Discussion = Entity<{
-  title: string
-  body: string
-  teamId: string
-  author: User
-}>
-
-export type Comment = Entity<{
-  body: string
-  discussionId: string
-  author: User
-}>
