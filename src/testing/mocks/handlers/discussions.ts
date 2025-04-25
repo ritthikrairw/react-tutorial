@@ -11,70 +11,73 @@ type DiscussionBody = {
 }
 
 export const discussionsHandlers = [
-  http.get(`${env.API_URL}/discussions`, async ({ cookies, request }) => {
-    await networkDelay()
+  http.get(
+    `${env.VITE_APP_API_URL}/discussions`,
+    async ({ cookies, request }) => {
+      await networkDelay()
 
-    try {
-      const { user, error } = requireAuth(cookies)
-      if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 })
-      }
+      try {
+        const { user, error } = requireAuth(cookies)
+        if (error) {
+          return HttpResponse.json({ message: error }, { status: 401 })
+        }
 
-      const url = new URL(request.url)
+        const url = new URL(request.url)
 
-      const page = Number(url.searchParams.get('page') || 1)
+        const page = Number(url.searchParams.get('page') || 1)
 
-      const total = db.discussion.count({
-        where: {
-          teamId: {
-            equals: user?.teamId,
-          },
-        },
-      })
-
-      const totalPages = Math.ceil(total / 10)
-
-      const result = db.discussion
-        .findMany({
+        const total = db.discussion.count({
           where: {
             teamId: {
               equals: user?.teamId,
             },
           },
-          take: 10,
-          skip: 10 * (page - 1),
         })
-        .map(({ authorId, ...discussion }) => {
-          const author = db.user.findFirst({
+
+        const totalPages = Math.ceil(total / 10)
+
+        const result = db.discussion
+          .findMany({
             where: {
-              id: {
-                equals: authorId,
+              teamId: {
+                equals: user?.teamId,
               },
             },
+            take: 10,
+            skip: 10 * (page - 1),
           })
-          return {
-            ...discussion,
-            author: author ? sanitizeUser(author) : {},
-          }
+          .map(({ authorId, ...discussion }) => {
+            const author = db.user.findFirst({
+              where: {
+                id: {
+                  equals: authorId,
+                },
+              },
+            })
+            return {
+              ...discussion,
+              author: author ? sanitizeUser(author) : {},
+            }
+          })
+        return HttpResponse.json({
+          data: result,
+          meta: {
+            page,
+            total,
+            totalPages,
+          },
         })
-      return HttpResponse.json({
-        data: result,
-        meta: {
-          page,
-          total,
-          totalPages,
-        },
-      })
-    } catch (error: any) {
-      return HttpResponse.json(
-        { message: error?.message || 'Server Error' },
-        { status: 500 },
-      )
-    }
-  }),
+      } catch (error: any) {
+        return HttpResponse.json(
+          { message: error?.message || 'Server Error' },
+          { status: 500 },
+        )
+      }
+    },
+  ),
 
   http.get(
-    `${env.API_URL}/discussions/:discussionId`,
+    `${env.VITE_APP_API_URL}/discussions/:discussionId`,
     async ({ params, cookies }) => {
       await networkDelay()
 
@@ -125,33 +128,37 @@ export const discussionsHandlers = [
     },
   ),
 
-  http.post(`${env.API_URL}/discussions`, async ({ request, cookies }) => {
-    await networkDelay()
+  http.post(
+    `${env.VITE_APP_API_URL}/discussions`,
+    async ({ request, cookies }) => {
+      await networkDelay()
 
-    try {
-      const { user, error } = requireAuth(cookies)
-      if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 })
+      try {
+        const { user, error } = requireAuth(cookies)
+        if (error) {
+          return HttpResponse.json({ message: error }, { status: 401 })
+        }
+        const data = (await request.json()) as DiscussionBody
+        // @ts-expect-error - user is not null
+        requireAdmin(user)
+        const result = db.discussion.create({
+          teamId: user?.teamId,
+          authorId: user?.id,
+          ...data,
+        })
+        await persistDb('discussion')
+        return HttpResponse.json(result)
+      } catch (error: any) {
+        return HttpResponse.json(
+          { message: error?.message || 'Server Error' },
+          { status: 500 },
+        )
       }
-      const data = (await request.json()) as DiscussionBody
-      requireAdmin(user)
-      const result = db.discussion.create({
-        teamId: user?.teamId,
-        authorId: user?.id,
-        ...data,
-      })
-      await persistDb('discussion')
-      return HttpResponse.json(result)
-    } catch (error: any) {
-      return HttpResponse.json(
-        { message: error?.message || 'Server Error' },
-        { status: 500 },
-      )
-    }
-  }),
+    },
+  ),
 
   http.patch(
-    `${env.API_URL}/discussions/:discussionId`,
+    `${env.VITE_APP_API_URL}/discussions/:discussionId`,
     async ({ request, params, cookies }) => {
       await networkDelay()
 
@@ -162,6 +169,7 @@ export const discussionsHandlers = [
         }
         const data = (await request.json()) as DiscussionBody
         const discussionId = params.discussionId as string
+        // @ts-expect-error - user is not null
         requireAdmin(user)
         const result = db.discussion.update({
           where: {
@@ -186,7 +194,7 @@ export const discussionsHandlers = [
   ),
 
   http.delete(
-    `${env.API_URL}/discussions/:discussionId`,
+    `${env.VITE_APP_API_URL}/discussions/:discussionId`,
     async ({ cookies, params }) => {
       await networkDelay()
 
@@ -196,6 +204,7 @@ export const discussionsHandlers = [
           return HttpResponse.json({ message: error }, { status: 401 })
         }
         const discussionId = params.discussionId as string
+        // @ts-expect-error - user is not null
         requireAdmin(user)
         const result = db.discussion.delete({
           where: {

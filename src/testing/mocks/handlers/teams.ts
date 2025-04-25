@@ -6,7 +6,7 @@ import { db } from '../db'
 import { networkDelay } from '../utils'
 
 export const teamsHandlers = [
-  http.get(`${env.API_URL}/teams`, async () => {
+  http.get(`${env.VITE_APP_API_URL}/teams`, async () => {
     await networkDelay()
 
     try {

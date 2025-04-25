@@ -16,7 +16,7 @@ export const handlers = [
   ...discussionsHandlers,
   ...teamsHandlers,
   ...usersHandlers,
-  http.get(`${env.API_URL}/healthcheck`, async () => {
+  http.get(`${env.VITE_APP_API_URL}/healthcheck`, async () => {
     await networkDelay()
     return HttpResponse.json({ ok: true })
   }),

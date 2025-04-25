@@ -11,7 +11,7 @@ type CreateCommentBody = {
 }
 
 export const commentsHandlers = [
-  http.get(`${env.API_URL}/comments`, async ({ request, cookies }) => {
+  http.get(`${env.VITE_APP_API_URL}/comments`, async ({ request, cookies }) => {
     await networkDelay()
 
     try {
@@ -72,31 +72,34 @@ export const commentsHandlers = [
     }
   }),
 
-  http.post(`${env.API_URL}/comments`, async ({ request, cookies }) => {
-    await networkDelay()
+  http.post(
+    `${env.VITE_APP_API_URL}/comments`,
+    async ({ request, cookies }) => {
+      await networkDelay()
 
-    try {
-      const { user, error } = requireAuth(cookies)
-      if (error) {
-        return HttpResponse.json({ message: error }, { status: 401 })
+      try {
+        const { user, error } = requireAuth(cookies)
+        if (error) {
+          return HttpResponse.json({ message: error }, { status: 401 })
+        }
+        const data = (await request.json()) as CreateCommentBody
+        const result = db.comment.create({
+          authorId: user?.id,
+          ...data,
+        })
+        await persistDb('comment')
+        return HttpResponse.json(result)
+      } catch (error: any) {
+        return HttpResponse.json(
+          { message: error?.message || 'Server Error' },
+          { status: 500 },
+        )
       }
-      const data = (await request.json()) as CreateCommentBody
-      const result = db.comment.create({
-        authorId: user?.id,
-        ...data,
-      })
-      await persistDb('comment')
-      return HttpResponse.json(result)
-    } catch (error: any) {
-      return HttpResponse.json(
-        { message: error?.message || 'Server Error' },
-        { status: 500 },
-      )
-    }
-  }),
+    },
+  ),
 
   http.delete(
-    `${env.API_URL}/comments/:commentId`,
+    `${env.VITE_APP_API_URL}/comments/:commentId`,
     async ({ params, cookies }) => {
       await networkDelay()
 

@@ -27,7 +27,7 @@ type LoginBody = {
 }
 
 export const authHandlers = [
-  http.post(`${env.API_URL}/auth/register`, async ({ request }) => {
+  http.post(`${env.VITE_APP_API_URL}/auth/register`, async ({ request }) => {
     await networkDelay()
     try {
       const userObject = (await request.json()) as RegisterBody
@@ -109,7 +109,7 @@ export const authHandlers = [
     }
   }),
 
-  http.post(`${env.API_URL}/auth/login`, async ({ request }) => {
+  http.post(`${env.VITE_APP_API_URL}/auth/login`, async ({ request }) => {
     await networkDelay()
 
     try {
@@ -133,7 +133,7 @@ export const authHandlers = [
     }
   }),
 
-  http.post(`${env.API_URL}/auth/logout`, async () => {
+  http.post(`${env.VITE_APP_API_URL}/auth/logout`, async () => {
     await networkDelay()
 
     // todo: remove once tests in Github Actions are fixed
@@ -149,7 +149,7 @@ export const authHandlers = [
     )
   }),
 
-  http.get(`${env.API_URL}/auth/me`, async ({ cookies }) => {
+  http.get(`${env.VITE_APP_API_URL}/auth/me`, async ({ cookies }) => {
     await networkDelay()
 
     try {
