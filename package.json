@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "tsc && vite build --base=/",
     "preview": "vite preview",
+    "deploy": "tsc && vite build --base=/ && npx wrangler pages deploy",
     "test": "vitest",
     "test-e2e": "pm2 start \"yarn run-mock-server\" --name server && yarn playwright test",
     "prepare": "husky",
@@ -117,7 +118,8 @@
     "vite": "^6.3.3",
     "vite-node": "^3.1.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "wrangler": "^4.13.1"
   },
   "msw": {
     "workerDirectory": "public"

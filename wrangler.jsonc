@@ -1,0 +1,10 @@
+{
+  "name": "react-tutorial",
+  "compatibility_date": "2025-04-02",
+  "compatibility_flags": ["nodejs_compat_v2"],
+  "pages_build_output_dir": "dist",
+  "observability": {
+    "enabled": true
+  },
+  "placement": { "mode": "smart" }
+}
