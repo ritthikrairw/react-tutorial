@@ -21,6 +21,10 @@ export const createAppRouter = (queryClient: QueryClient) =>
       lazy: () => import('./routes/home').then(convert(queryClient)),
     },
     {
+      path: paths.about.path,
+      lazy: () => import('./routes/about').then(convert(queryClient)),
+    },
+    {
       path: '*',
       lazy: () => import('./routes/not-found').then(convert(queryClient)),
     },

@@ -125,9 +125,6 @@
     "workerDirectory": "public"
   },
   "lint-staged": {
-    "*.+(ts|tsx)": [
-      "yarn lint",
-      "bash -c 'yarn check-types'"
-    ]
+    "*.+(ts|tsx)": ["yarn lint", "bash -c 'yarn check-types'"]
   }
 }

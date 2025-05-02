@@ -3,4 +3,8 @@ export const paths = {
     path: '/',
     getHref: () => '/',
   },
+  about: {
+    path: '/about',
+    getHref: () => '/about',
+  },
 } as const
